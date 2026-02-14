@@ -1,0 +1,433 @@
+---------------------------------------------------------------------------------
+NMAP COMMANDS:
+---------------------------------------------------------------------------------
+1. Basic Scan : 
+nmap nasa.gov
+
+Use:
+
+Checks which common ports are open
+
+Identifies live hosts
+
+Provides a quick overview of the target
+
+When to use:
+First step in reconnaissance to see “Is the host up and what’s open?”
+
+2. Scan All Ports:
+nmap -p- target.com
+
+Use:
+
+Scans all 65,535 TCP ports
+
+Finds hidden or uncommon services
+
+When to use:
+- After basic scan to discover services running on non-standard ports
+- Slower than basic scan
+
+3. Service & Version Detection
+nmap -sV target.com
+
+Use:
+
+Identifies service names (Apache, Nginx, SSH, FTP, etc.)
+
+Detects exact software versions
+
+When to use:
+To map services for CVE identification and exploitation
+
+4. OS Detection:
+nmap -O target.com
+
+Use:
+
+Attempts to identify the operating system
+
+Detects Linux, Windows, BSD, etc.
+
+When to use:
+To choose OS-specific exploits and payloads
+
+Requires root/admin privileges
+
+5. Aggressive Scan (Common in recon):
+nmap -A target.com
+
+Use:
+
+Combines multiple scans:
+
+OS detection
+
+Service/version detection
+
+Default NSE scripts
+
+Traceroute
+
+When to use:
+One-shot deep reconnaissance
+
+Very noisy – easily detectable by IDS/WAF
+
+6. Top 100 Ports (Fast Scan):
+nmap --top-ports 100 target.com
+
+Use:
+
+Scans the 100 most commonly used ports
+
+Much faster than full port scan
+
+When to use:
+Quick recon during time-restricted assessments
+
+7. Scan Specific Ports:
+nmap -p 80,443,8080 target.com
+
+Use:
+
+Targets only selected ports
+
+Saves time and reduces noise
+
+When to use:
+When you already know which ports matter (web apps, APIs)
+
+8. Run Vulnerability NSE Scripts:
+nmap --script vuln target.com
+
+Use:
+
+Runs pre-built vulnerability detection scripts
+
+Checks for:
+
+Known CVEs
+
+Misconfigurations
+
+Weak services
+
+When to use:
+ Early vulnerability assessment before manual testing
+ Results must be manually verified (false positives possible)
+
+
+9 .Output to File:
+nmap -A target.com -oN scan_results.txt
+
+Use:
+
+Saves scan results in a readable text file
+
+Useful for:
+
+Reports
+
+Bug bounty submissions
+
+Later analysis
+
+When to use:
+Always during professional testing or documentation
+
+-----------------------------------------------------------------------------------
+Wordpress Scan : 
+-----------------------------------------------------------------------------------
+1. Basic Scan:
+wpscan --url https://target.com
+
+Use:
+Performs a basic passive scan to detect:
+
+WordPress presence
+
+WordPress version
+
+Server headers
+
+Security misconfigurations
+
+2. Enumerate WordPress Users
+wpscan --url https://target.com -e u
+
+Use:
+Identifies valid WordPress usernames using:
+
+Author archives
+
+REST API
+
+Login error messages
+
+Impact: Enables brute-force and credential-stuffing attacks.
+
+3. Enumerate Vulnerable Plugins
+wpscan --url https://target.com -e vp
+
+Use:
+Detects installed plugins with known vulnerabilities using the WPScan vulnerability database.
+
+4. Enumerate Vulnerable Themes
+wpscan --url https://target.com -e vt
+
+Use:
+Finds installed themes that have publicly known security issues.
+
+5. Enumerate All Plugins (active + inactive)
+wpscan --url https://target.com -e ap
+
+Use:
+Lists all detected plugins, even if they are disabled.
+Inactive plugins can still be exploitable if accessible.
+
+6. Enumerate All Themes
+wpscan --url https://target.com -e at
+
+Use:
+Lists all installed themes, including inactive ones, for version and vulnerability analysis.
+
+7. Full Aggressive Scan (most used in VAPT)
+wpscan --url https://sysaid.com --enumerate u,ap,at,tt,cb,dbe
+
+Use:
+Performs a comprehensive enumeration including:
+
+Flag	Meaning
+u	Users
+ap	All plugins
+at	All themes
+tt	Timthumb files
+cb	Config backups
+dbe	Database exports
+
+Note: This scan is aggressive and may trigger WAFs or IDS.
+
+8. Output Report to File
+wpscan --url https://target.com -o report.txt
+
+Use:
+Saves the scan output for:
+
+Reporting
+
+Evidence collection
+
+Compliance documentation
+
+9. wpscan --url https://target.com -e vp,vt,u --api-token YOUR_API_KEY
+Why API Token?
+
+Enables vulnerability data
+
+Improves accuracy
+
+Required for professional testing
+
+If you are using docker(Then add the below command before all wpscan)
+docker run -it wpscanteam/wpscan --url https://www.securitas.com/
+
+docker run -it wpscanteam/wpscan --url https://securitas.com --enumerate u,ap,at,tt,cb,dbe
+
+
+To Generate API 
+Step 1 - Go to 
+https://wpscan.com/register
+
+Step 2 — Create a free account
+Enter your email
+Verify your email
+Login
+
+Step 3 : 
+— Get your API Token
+
+Once logged in, go to:
+
+👉 Dashboard → API Token -> IKpBUCoadexsD3VDf29QMX9oUhPR0iJb9MBGGktD9Is
+
+9. Basic scan with API key
+wpscan --url https://upsun.com --api-token YOUR_KEY
+
+10. Enumerate users + plugins + themes + vulnerabilities
+wpscan --url https://target.com --enumerate u,ap,at,vt --api-token YOUR_KEY
+
+11. Full deep scan (recommended for VAPT)
+wpscan --url https://www.sysaid.com/ --api-token IKpBUCoadexsD3VDf29QMX9oUhPR0iJb9MBGGktD9Is -o report.txt
+
+12. Along with the Report : 
+docker run -it -v $PWD:/wpscan wpscanteam/wpscan --url https://www.sysaid.com/ --api-token IKpBUCoadexsD3VDf29QMX9oUhPR0iJb9MBGGktD9Is -o /wpscan/report.json --format json
+
+---------------------------------------------------------------------
+NIKTO COMMANDS 
+---------------------------------------------------------------------
+NIKTO http target : 
+nikto -h http://mailerlite.com
+
+Use:
+
+Performs a basic web server security scan over HTTP
+
+Identifies:
+
+Dangerous files and directories
+
+Outdated server software
+
+Misconfigurations
+
+Common vulnerabilities
+
+https: 
+nikto -h https://target.com
+
+Use:
+
+Same as HTTP scan but over SSL/TLS
+
+Checks:
+
+HTTPS-specific misconfigurations
+
+Insecure headers
+
+SSL-related weaknesses
+
+Scan an IP Address:
+nikto -h 192.168.1.10
+
+Use:
+
+Useful when:
+
+No domain name is available
+
+Scanning internal servers (LAN / lab environments)
+
+Detects web services running directly on an IP
+
+
+Scan Specific Port:
+nikto -h http://target.com -port 8080
+Use:
+
+Scans web applications running on non-standard ports
+
+Common for:
+
+Admin panels
+
+Dev/test servers
+
+Proxies and alternate web services
+
+
+Use Aggressive Testing:
+nikto -h http://target.com -Tuning x
+
+Use:
+
+Enables aggressive vulnerability checks
+
+Tests for:
+
+Remote file inclusion
+
+Command execution patterns
+
+High-risk misconfigurations
+
+⚠️ Noisy – may trigger WAF/IDS alerts
+
+Useful for admin panels or hidden areas.
+nikto -h http://target.com/admin/
+
+Use:
+
+Targets a specific directory instead of the full site
+
+Helpful for:
+
+Admin login pages
+
+Backup panels
+
+Hidden or restricted areas
+
+Save Output to a File (HTML, TXT, XML):
+nikto -h http://target.com -o result.txt
+
+Use:
+
+Saves scan results for:
+
+Documentation
+
+Bug bounty reports
+
+Offline analysis
+
+HTML : nikto -h http://target.com -Format htm -o report.html
+
+Use:
+
+Generates a readable HTML report
+
+Ideal for:
+
+Client submissions
+
+Audit reports
+
+Presentations
+
+
+Scan With SSL Checks:
+nikto -h https://target.com -ssl
+
+Use:
+
+Forces SSL scanning even if auto-detection fails
+
+Checks:
+
+Weak SSL configurations
+
+Certificate issues
+
+HTTPS-specific findings
+
+List Available Plugins
+nikto -list-plugins
+Use:
+
+Displays all installed Nikto plugins
+
+Useful for:
+
+Custom scans
+
+Understanding scan capabilities
+
+Advanced testing configurations
+
+
+Common Bugs Nikto Can Help Identify
+
+Nikto does not exploit, but it helps detect:
+
+	- Outdated Apache/Nginx/IIS versions
+	- Misconfigured HTTP methods (PUT, DELETE)
+	- Directory indexing
+	- Backup files (.zip, .bak, .old)
+	- Exposed admin panels
+	- Dangerous CGI scripts
+	- Missing security headers
+	- SSL/TLS misconfigurations
+ 	- Default or weak credentials
+	- Known vulnerabilities in software versions
